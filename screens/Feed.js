@@ -1,8 +1,9 @@
 import React from "react";
-import { Text, View, TouchableOpacity } from "react-native";
+import { Text, View, TouchableOpacity, FlatList } from "react-native";
 import { colors } from "../colors";
 import { gql, useQuery } from "@apollo/client";
 import { PHOTO_FRAGMENT, COMMENT_FRAGMENT } from "../fragment";
+import ScreenLayout from "../components/ScreenLayout";
 
 const FEED_QUERY = gql`
   query seeFeed {
@@ -25,20 +26,22 @@ const FEED_QUERY = gql`
 `;
 
 export default function Feed({ navigation }) {
-  const { data } = useQuery(FEED_QUERY);
+  const { data, loading } = useQuery(FEED_QUERY);
+  const renderPhoto = ({ item: photo }) => {
+    return (
+      <View style={{ flex: 1 }}>
+        <Text style={colors.white}>{photo.caption}</Text>
+      </View>
+    );
+  };
   console.log(data);
   return (
-    <View
-      style={{
-        backgroundColor: colors.black,
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <TouchableOpacity onPress={() => navigation.navigate("Photo")}>
-        <Text style={{ color: colors.white }}>Go To Photo</Text>
-      </TouchableOpacity>
-    </View>
+    <ScreenLayout loading={loading}>
+      <FlatList
+        data={data?.seeFeed}
+        keyExtractor={(photo) => "" + photo.id}
+        renderItem={renderPhoto}
+      />
+    </ScreenLayout>
   );
 }
