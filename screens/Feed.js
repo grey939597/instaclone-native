@@ -1,26 +1,43 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
-import { View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import styled from "styled-components";
-import { logUserOut } from "../apollo";
+import { Text, View, TouchableOpacity } from "react-native";
 import { colors } from "../colors";
+import { gql, useQuery } from "@apollo/client";
+import { PHOTO_FRAGMENT, COMMENT_FRAGMENT } from "../fragment";
 
-const LogoutLink = styled.Text`
-  color: ${colors.blue};
-  font-weight: 600;
-  margin-top: 20px;
-  text-align: center;
+const FEED_QUERY = gql`
+  query seeFeed {
+    seeFeed {
+      ...PhotoFragment
+      user {
+        username
+        avatar
+      }
+      caption
+      comments {
+        ...CommentFragment
+      }
+      createdAt
+      isMine
+    }
+  }
+  ${PHOTO_FRAGMENT}
+  ${COMMENT_FRAGMENT}
 `;
 
-export default function Feed() {
-  const logout = async () => {
-    await logUserOut();
-  };
+export default function Feed({ navigation }) {
+  const { data } = useQuery(FEED_QUERY);
+  console.log(data);
   return (
-    <View>
-      <TouchableOpacity onPress={logout}>
-        <LogoutLink>Logout</LogoutLink>
+    <View
+      style={{
+        backgroundColor: colors.black,
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <TouchableOpacity onPress={() => navigation.navigate("Photo")}>
+        <Text style={{ color: colors.white }}>Go To Photo</Text>
       </TouchableOpacity>
     </View>
   );
